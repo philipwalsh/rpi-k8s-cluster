@@ -1,0 +1,12 @@
+from https://kuber.host/docs/kubectl_tricks
+
+i dont like vi, as the default editor, so change it
+
+in ~/.bashrc put this line in
+export KUBE_EDITOR="nano" # for nano
+
+
+this didnt work, yet, supposedely i can try adding it to ./xshrc also
+
+or you can call the editor like this
+KUBE_EDITOR="nano" kubectl edit deployment nginx-deploy-1

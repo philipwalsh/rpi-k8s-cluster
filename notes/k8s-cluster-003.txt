@@ -1,0 +1,74 @@
+from https://core-electronics.com.au/tutorials/stress-testing-your-raspberry-pi.html
+
+setup the pie for the stress test
+
+-- install stress
+sudo apt-get install stress
+
+-- get the cpu burn program
+wget https://raw.githubusercontent.com/ssvb/cpuburn-arm/master/cpuburn-a53.S
+
+-- build the burn program
+gcc -o cpuburn-a53 cpuburn-a53.S
+
+stress test
+-----------
+while true; do vcgencmd measure_clock arm; vcgencmd measure_temp; sleep 10; done& stress -c 4 -t 900s
+
+run individual, then simultaneous
+
+you must pass the above test before moving on to cpu burn, dont want to cook the pi
+
+
+cpu burn test 
+-------------
+
+while true; do vcgencmd measure_clock arm; vcgencmd measure_temp; sleep 10; done& ./cpuburn-a53
+
+run individual, then simultaneous
+
+
+notes
+-----
+my initial physical configuration had the 3 pi(s) in a 3 pi rack
+------------
+- worker 2 -
+------------
+- worker 1 -
+------------
+-   boss   -
+------------
+but the boss was getting about 10 degrees hotter than worker 2 at full load test
+
+
+I added an aditional shelf to the rack, now i have 3 pi(s) in a 4 pi rack
+------------
+- worker 2 -
+------------
+- worker 1 -
+------------
+- {empty}  -
+------------
+-   boss   -
+------------
+now boss runs much cooler with the extra space
+if i had the extra hardware i would put another slot in to give each pi more room
+but the case i bought only supported 4 slots, not 5
+even with all 3 pi(s) at max cpu burn, my tem,ps maxed out at
+
+---------------------
+- worker 2 58C/136F -
+---------------------
+- worker 1 70C/158F -
+---------------------
+-      {empty}      -
+---------------------
+-   boss   65C/149F -
+---------------------
+
+i have been told that 80C is max PI temp, so i am well under that limit
+with 3 PI(s) over clocked and running max cpu burn stress test
+minimal cooling, 3 small case fans mounted on top of each PI
+
+
+

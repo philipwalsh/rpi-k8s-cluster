@@ -1,0 +1,126 @@
+rpi initial setup
+grab lite version of raspbian from raspberrypi.org
+burn/install to sd cards
+plug sd cards into kali (or other linux distro) and modify a few files
+	/media/kali/rootfs/etc/hostname --change hostname
+	/media/kali/rootfs/etc/hosts    -- do same name replacement
+
+
+
+rpi-k8s-boss
+dc:a6:32:b9:75:7e
+192.168.1.42
+
+rpi-k8s-worker1
+dc:a6:32:b9:67:a7
+192.168.1.43
+
+rpi-k8s-worker2
+dc:a6:32:b9:75:27
+* had issues with first build, file system was currupt, kept loading as read only, i was not too far into the rocess
+  so i reloaded from scratch.  used the rpi image burner and reloaded.
+
+after rebuild of worker2 os, i recieve this error
+SHA256:805M/fvc7AHFvwLUehKy3G6WjqHmvLkXS/uYAQxjKQg.
+Please contact your system administrator.
+Add correct host key in C:\\Users\\xbox/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in C:\\Users\\xbox/.ssh/known_hosts:7
+ECDSA host key for 192.168.1.44 has changed and you have requested strict checking.
+Host key verification failed.
+
+
+[on all 3 nodes]
+sudo apt-update
+sudo apt dist-upgrade
+
+
+[overclocking]
+* from https://www.seeedstudio.com/blog/2020/02/12/how-to-safely-overclock-your-raspberry-pi-4-to-2-147ghz/
+
+check current system
+pi@rpi-k8s-boss:~ $ lscpu
+Architecture:        armv7l
+Byte Order:          Little Endian
+CPU(s):              4
+On-line CPU(s) list: 0-3
+Thread(s) per core:  1
+Core(s) per socket:  4
+Socket(s):           1
+Vendor ID:           ARM
+Model:               3
+Model name:          Cortex-A72
+Stepping:            r0p3
+CPU max MHz:         1500.0000
+CPU min MHz:         600.0000
+BogoMIPS:            108.00
+Flags:               half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32
+
+check base freq
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+
+* now to overclock
+
+sudo nano /boot/config.txt
+
+#uncomment to overclock the arm. 700 MHz is the default.
+#arm_freq=800
+
+#uncomment to overclock the arm. 700 MHz is the default.
+over_voltage=2
+arm_freq=1750
+
+sudo reboot
+watch -n 1 vcgencmd measure_clock arm
+
+
+* want to go ever higher, to 2 ghz, then do this
+over_voltage=6
+arm_freq=2000
+
+sudo reboot
+watch -n 1 vcgencmd measure_clock arm
+
+
+** dont do this, but if you wanted to try, on a dtriple dog dare, go to max
+   over_voltage=6
+   arm_freq=2147
+   gpu_freq=750
+
+********** my overclock results 1, using, over_voltage=2, arm_freq=1750
+
+pi@rpi-k8s-boss:~ $ lscpu
+Architecture:        armv7l
+Byte Order:          Little Endian
+CPU(s):              4
+On-line CPU(s) list: 0-3
+Thread(s) per core:  1
+Core(s) per socket:  4
+Socket(s):           1
+Vendor ID:           ARM
+Model:               3
+Model name:          Cortex-A72
+Stepping:            r0p3
+CPU max MHz:         1800.0000
+CPU min MHz:         600.0000
+BogoMIPS:            108.00
+Flags:               half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32
+
+
+** after second round of overclocking - pi booted with, over_voltage=6, arm_freq=2000
+
+pi@rpi-k8s-boss:~ $ lscpu
+Architecture:        armv7l
+Byte Order:          Little Endian
+CPU(s):              4
+On-line CPU(s) list: 0-3
+Thread(s) per core:  1
+Core(s) per socket:  4
+Socket(s):           1
+Vendor ID:           ARM
+Model:               3
+Model name:          Cortex-A72
+Stepping:            r0p3
+CPU max MHz:         2000.0000
+CPU min MHz:         600.0000
+BogoMIPS:            108.00
+Flags:               half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32
